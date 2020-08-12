@@ -1,6 +1,7 @@
-package com.mashirro.service;
+package com.mashirro.servlet;
 
 import com.mashirro.pojo.User;
+import com.mashirro.service.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
