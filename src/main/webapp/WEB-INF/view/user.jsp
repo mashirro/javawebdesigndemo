@@ -25,7 +25,7 @@
             <td>${user.userName}</td>
             <td>${user.telephone}</td>
             <td>
-                <a href="${pageContext.request.contextPath}/user_edit?id=${user.id}">编辑</a>
+                <a href="${pageContext.request.contextPath}/user_show?id=${user.id}">查看</a>
                 <a href="${pageContext.request.contextPath}/user_delete?id=${user.id}">删除</a>
             </td>
         </tr>
