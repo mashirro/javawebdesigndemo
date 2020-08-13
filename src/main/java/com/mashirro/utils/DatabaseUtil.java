@@ -3,7 +3,9 @@ package com.mashirro.utils;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -148,5 +151,49 @@ public class DatabaseUtil {
             throw new RuntimeException(e);
         }
         return entityList;
+    }
+
+
+    /**
+     * 查询实体
+     *
+     * @param entityClass 实体Class对象
+     * @param sql         sql语句
+     * @param params      参数
+     * @param <T>         泛型
+     * @return
+     */
+    public static <T> T queryEntity(Class<T> entityClass, String sql, Object... params) {
+        T entity = null;
+        try {
+            Connection coon = getConnection();
+            //BeanHandler:返回bean对象
+            entity = QUERY_RUNNER.query(coon, sql, new BeanHandler<T>(entityClass), params);
+        } catch (Exception e) {
+            logger.error("查询实体失败!");
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return entity;
+    }
+
+
+    /**
+     * 执行查询语句(查询不一定是基于单表的,有可能多表进行查询,需要提供一个更强大的查询方法)
+     *
+     * @param sql
+     * @param params
+     * @return
+     */
+    public static List<Map<String, Object>> executeQuery(String sql, Object... params) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            Connection coon = getConnection();
+            result = QUERY_RUNNER.query(coon, sql, new MapListHandler(), params);
+        } catch (Exception e) {
+            logger.error("executeQuery执行异常!");
+            e.printStackTrace();
+        }
+        return result;
     }
 }
