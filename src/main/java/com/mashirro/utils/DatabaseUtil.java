@@ -1,12 +1,14 @@
 package com.mashirro.utils;
 
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -23,6 +25,7 @@ public class DatabaseUtil {
     private static final String password;
     private static final QueryRunner QUERY_RUNNER = new QueryRunner();
     private static final ThreadLocal<Connection> CONNECTION_HOLDER = new ThreadLocal<>();
+    private static final BasicDataSource DATA_SOURCE = new BasicDataSource();
 
 
     static {
@@ -31,13 +34,10 @@ public class DatabaseUtil {
         url = properties.getProperty("jdbc.url");
         username = properties.getProperty("jdbc.username");
         password = properties.getProperty("jdbc.password");
-
-        try {
-            Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            logger.error("数据库驱动出现异常!", e);
-            e.printStackTrace();
-        }
+        DATA_SOURCE.setDriverClassName(driver);
+        DATA_SOURCE.setUrl(url);
+        DATA_SOURCE.setUsername(username);
+        DATA_SOURCE.setPassword(password);
     }
 
 
@@ -58,7 +58,8 @@ public class DatabaseUtil {
         Connection coon = CONNECTION_HOLDER.get();
         if (coon == null) {
             try {
-                coon = DriverManager.getConnection(url, username, password);
+                //coon = DriverManager.getConnection(url, username, password);
+                coon = DATA_SOURCE.getConnection();
             } catch (SQLException e) {
                 logger.error("获取数据库连接出现异常!", e);
                 e.printStackTrace();
@@ -88,19 +89,19 @@ public class DatabaseUtil {
     /**
      * 关闭数据库连接
      */
-    public static void closeConnection() {
-        Connection coon = CONNECTION_HOLDER.get();
-        if (coon != null) {
-            try {
-                coon.close();
-            } catch (SQLException e) {
-                logger.error("关闭数据库连接出现异常!", e);
-                e.printStackTrace();
-            } finally {
-                CONNECTION_HOLDER.remove();
-            }
-        }
-    }
+//    public static void closeConnection() {
+//        Connection coon = CONNECTION_HOLDER.get();
+//        if (coon != null) {
+//            try {
+//                coon.close();
+//            } catch (SQLException e) {
+//                logger.error("关闭数据库连接出现异常!", e);
+//                e.printStackTrace();
+//            } finally {
+//                CONNECTION_HOLDER.remove();
+//            }
+//        }
+//    }
 
 
     /**
@@ -145,8 +146,6 @@ public class DatabaseUtil {
             logger.error("查询实体列表出错!", e);
             e.printStackTrace();
             throw new RuntimeException(e);
-        } finally {
-            closeConnection();
         }
         return entityList;
     }
