@@ -13,7 +13,7 @@
 </head>
 <body>
 <h1>用户列表</h1>
-
+<h1>${pageContext.request.contextPath}</h1>
 <table>
     <tr>
         <th>用户名称</th>
@@ -25,8 +25,8 @@
             <td>${user.userName}</td>
             <td>${user.telephone}</td>
             <td>
-                <a href="#">删除</a>
-                <a href="#">编辑</a>
+                <a href="${pageContext.request.contextPath}/user_edit?id=${user.id}">编辑</a>
+                <a href="${pageContext.request.contextPath}/user_delete?id=${user.id}">删除</a>
             </td>
         </tr>
     </c:forEach>
