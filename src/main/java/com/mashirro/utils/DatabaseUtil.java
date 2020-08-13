@@ -1,10 +1,14 @@
 package com.mashirro.utils;
 
 
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -17,6 +21,7 @@ public class DatabaseUtil {
     private static final String url;
     private static final String username;
     private static final String password;
+    private static final QueryRunner QUERY_RUNNER = new QueryRunner();
 
 
     static {
@@ -55,5 +60,30 @@ public class DatabaseUtil {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    /**
+     * 查询实体列表
+     *
+     * @param coon        数据库连接
+     * @param entityClass 实体Class对象
+     * @param sql         sql语句
+     * @param params      参数
+     * @param <T>         泛型
+     * @return
+     */
+    public static <T> List<T> queryEntityList(Connection coon, Class<T> entityClass, String sql, Object... params) {
+        List<T> entityList = new ArrayList<>();
+        try {
+            entityList = QUERY_RUNNER.query(coon, sql, new BeanListHandler<T>(entityClass), params);
+        } catch (SQLException e) {
+            logger.error("查询实体列表出错!", e);
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            closeConnection(coon);
+        }
+        return entityList;
     }
 }
